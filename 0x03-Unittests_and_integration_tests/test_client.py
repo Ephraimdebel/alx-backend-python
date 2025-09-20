@@ -28,8 +28,9 @@ class TestGithubOrgClient(unittest.TestCase):
         ("abc", "https://api.github.com/orgs/abc/repos")
     ])
     def test_public_repos_url(self, org_name, expected_url):
-        """Test that public_repos_url returns the correct GitHub URL"""
+        """Test that public_repos_url property returns the correct URL"""
         client = GithubOrgClient(org_name)
+        # Access the property, not calling it
         self.assertEqual(client._public_repos_url, expected_url)
 
 
