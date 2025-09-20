@@ -23,11 +23,15 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
         self.assertEqual(result, {"mocked": True})
 
-    def test_public_repos_url(self):
+    @parameterized.expand([
+        ("google", "https://api.github.com/orgs/google/repos"),
+        ("abc", "https://api.github.com/orgs/abc/repos")
+    ])
+    def test_public_repos_url(self, org_name, expected_url):
         """Test that public_repos_url returns the correct GitHub URL"""
-        client = GithubOrgClient("google")
-        self.assertEqual(
-            client._public_repos_url,
-            "https://api.github.com/orgs/google/repos"
-        )
+        client = GithubOrgClient(org_name)
+        self.assertEqual(client._public_repos_url, expected_url)
 
+
+if __name__ == "__main__":
+    unittest.main()
