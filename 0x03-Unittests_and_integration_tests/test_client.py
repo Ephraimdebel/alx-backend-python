@@ -174,12 +174,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Patch requests.get globally for integration tests"""
-        # patcher object itself
-        cls.get_patcher = patch("client.requests.get")
-        # start the patch and assign mock
-        cls.mock_get = cls.get_patcher.start()
+        cls.get_patcher = patch("client.requests.get")  # patcher only
+        cls.mock_get = cls.get_patcher.start()          # start patch, assign mock
 
-        # configure side effect for the mock
+        # setup side effect for the mock
         def side_effect(url, *args, **kwargs):
             mock_response = Mock()
             if url.endswith("/repos"):
