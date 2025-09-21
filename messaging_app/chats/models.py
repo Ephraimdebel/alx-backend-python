@@ -7,25 +7,26 @@ from django.contrib.auth.models import AbstractUser
 # ----------------------
 class User(AbstractUser):
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    phone_number = models.CharField(max_length=20, null=True, blank=True)
-    role = models.CharField(max_length=10, choices=[('guest','guest'),('host','host'),('admin','admin')])
-    
-    # Avoid reverse accessor conflicts
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='custom_user_set',
-        blank=True,
-        help_text='The groups this user belongs to.'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='custom_user_permissions_set',
-        blank=True,
-        help_text='Specific permissions for this user.'
-    )
+    # Include the standard fields explicitly
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)  # password hash
+
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    ROLE_CHOICES = [
+        ("guest", "Guest"),
+        ("host", "Host"),
+        ("admin", "Admin"),
+    ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
 
     def __str__(self):
-        return self.username
+        return self.email
 
 # ----------------------
 # Conversation Model
