@@ -158,35 +158,37 @@ class TestGithubOrgClient(unittest.TestCase):
 # -------------------------
 # Integration Tests
 # -------------------------
-@parameterized_class([{
-    "org_payload": fixtures.TEST_PAYLOAD[0][0],
-    "repos_payload": fixtures.TEST_PAYLOAD[0][1],
-    "expected_repos": fixtures.TEST_PAYLOAD[0][2],
-    "apache2_repos": fixtures.TEST_PAYLOAD[0][3],
-}])
+@parameterized_class([
+    {
+        "org_payload": fixtures.org_payload,
+        "repos_payload": fixtures.repos_payload,
+        "expected_repos": fixtures.expected_repos,
+        "apache2_repos": fixtures.apache2_repos
+    }
+])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos"""
 
     @classmethod
     def setUpClass(cls):
-        # Patch requests.get globally
+        """Set up class method to start patcher for requests.get"""
         cls.get_patcher = patch("client.requests.get")
-        mock_get = cls.get_patcher.start()
+        cls.mock_get = cls.get_patcher.start()
 
-        # Return different payloads based on URL
-        def side_effect(url, *args, **kwargs):
+        def side_effect(url):
+            """Side effect to return appropriate fixture based on URL"""
             mock_response = Mock()
-            if url.endswith("/repos"):
-                mock_response.json.return_value = cls.repos_payload
-            else:
+            if url == "https://api.github.com/orgs/google":
                 mock_response.json.return_value = cls.org_payload
+            elif url == "https://api.github.com/orgs/google/repos":
+                mock_response.json.return_value = cls.repos_payload
             return mock_response
 
-        mock_get.side_effect = side_effect
-        cls.mock_get = mock_get
+        cls.mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
+        """Tear down class method to stop patcher"""
         cls.get_patcher.stop()
 
     def test_public_repos(self):
