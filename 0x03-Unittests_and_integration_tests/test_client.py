@@ -159,6 +159,9 @@ class TestGithubOrgClient(unittest.TestCase):
 # -------------------------
 # Integration Tests
 # -------------------------
+# -------------------------
+# Integration Tests
+# -------------------------
 @parameterized_class([{
     "org_payload": fixtures.TEST_PAYLOAD[0][0],
     "repos_payload": fixtures.TEST_PAYLOAD[0][1],
@@ -171,9 +174,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Patch requests.get globally for integration tests"""
+        # patcher object itself
         cls.get_patcher = patch("client.requests.get")
-        mock_get = cls.get_patcher.start()
+        # start the patch and assign mock
+        cls.mock_get = cls.get_patcher.start()
 
+        # configure side effect for the mock
         def side_effect(url, *args, **kwargs):
             mock_response = Mock()
             if url.endswith("/repos"):
@@ -182,8 +188,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
                 mock_response.json.return_value = cls.org_payload
             return mock_response
 
-        mock_get.side_effect = side_effect
-        cls.mock_get = mock_get
+        cls.mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
@@ -203,7 +208,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             license="apache-2.0"
         )
         self.assertEqual(repos, self.apache2_repos)
-
 
 if __name__ == "__main__":
     unittest.main()
