@@ -1,4 +1,4 @@
-#!/home/ephraim/Desktop/Academic/courses/ALX/alx-backend-python/venv/bin/python3
+#!/home/ephraim/Desktop/Academic/courses/ALX/alx-backend-python/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
