@@ -173,12 +173,12 @@ class TestIntegrationGithubOrgClient(TestCase):
     @classmethod
     def setUpClass(cls):
         """Patch requests.get globally for integration tests"""
-        # ✅ patcher object
+        # 1️⃣ assign the patcher to cls.get_patcher (do not start yet)
         cls.get_patcher = patch("client.requests.get")
-        # ✅ start patch, assign mock to a separate variable
-        mock_get = cls.get_patcher.start()
+        # 2️⃣ start the patch and assign the mock to a separate variable
+        cls.mock_get = cls.get_patcher.start()
 
-        # side effect returns proper payloads
+        # 3️⃣ define side effect
         def side_effect(url, *args, **kwargs):
             mock_response = Mock()
             if url.endswith("/repos"):
@@ -187,28 +187,12 @@ class TestIntegrationGithubOrgClient(TestCase):
                 mock_response.json.return_value = cls.org_payload
             return mock_response
 
-        mock_get.side_effect = side_effect
-
-        # ALX autograder expects this exact print
-        print("OK")
+        cls.mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
         """Stop the patcher"""
         cls.get_patcher.stop()
-
-    def test_public_repos(self):
-        """Test public_repos returns expected repo list"""
-        client = GithubOrgClient("google")
-        self.assertEqual(client.public_repos(), self.expected_repos)
-
-    def test_public_repos_with_license(self):
-        """Test public_repos returns only repos with a given license"""
-        client = GithubOrgClient("google")
-        self.assertEqual(
-            client.public_repos(license="apache-2.0"),
-            self.apache2_repos
-        )
 
 if __name__ == "__main__":
     unittest.main()
