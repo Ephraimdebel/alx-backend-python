@@ -6,8 +6,6 @@ from unittest.mock import patch, Mock
 from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient, access_nested_map, get_json, memoize
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
-from unittest import TestCase
-
 
 
 # -------------------------
