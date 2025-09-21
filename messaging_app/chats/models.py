@@ -1,7 +1,7 @@
 import uuid
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
 # ----------------------
 # User Model
 # ----------------------
@@ -20,7 +20,7 @@ class User(AbstractUser):
         ("admin", "Admin"),
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now) 
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "first_name", "last_name"]
