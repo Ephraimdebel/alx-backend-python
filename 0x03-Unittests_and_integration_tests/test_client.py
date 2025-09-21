@@ -113,8 +113,9 @@ class TestGithubOrgClient(unittest.TestCase):
             }
         with patch(
             "client.GithubOrgClient.org",
-              new=property(lambda self: test_payload)
+            new=property(lambda self: test_payload)
         ):
+
             client = GithubOrgClient("test_org")
             result = client._public_repos_url
             self.assertEqual(result, test_payload["repos_url"])
