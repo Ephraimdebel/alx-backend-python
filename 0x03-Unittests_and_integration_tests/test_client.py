@@ -123,12 +123,15 @@ class TestGithubOrgClient(unittest.TestCase):
 
         with patch(
             "client.GithubOrgClient._public_repos_url",
-            new=property(lambda self: "https://api.github.com/orgs/test_org/repos")
+            new=property(
+                lambda self: "https://api.github.com/orgs/test_org/repos"
+            ),
         ):
             client = GithubOrgClient("test_org")
             repos = client.public_repos()
             self.assertEqual(
-                repos, ["repo1", "repo2", "repo3"]
+                repos,
+                ["repo1", "repo2", "repo3"]
             )
             mock_get_json.assert_called_once_with(
                 "https://api.github.com/orgs/test_org/repos"
