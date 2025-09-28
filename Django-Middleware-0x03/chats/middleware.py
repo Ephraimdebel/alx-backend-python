@@ -3,6 +3,8 @@ import logging
 import os
 from datetime import datetime
 from django.conf import settings
+from datetime import datetime
+from django.http import HttpResponseForbidden
 
 # Setup logger once (avoid duplicate handlers on reload)
 logger = logging.getLogger("chats.request_logger")
@@ -39,6 +41,25 @@ class RequestLoggingMiddleware:
 
         log_message = f"{datetime.now()} - User: {user} - Path: {request.path}"
         logger.info(log_message)
+
+        response = self.get_response(request)
+        return response
+
+class RestrictAccessByTimeMiddleware:
+    """
+    Middleware to restrict access to chat outside 6AM - 9PM.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Define allowed hours: 6:00 to 21:00
+        current_hour = datetime.now().hour
+        if current_hour < 6 or current_hour >= 21:
+            return HttpResponseForbidden(
+                "Access to the chat is restricted between 9PM and 6AM."
+            )
 
         response = self.get_response(request)
         return response
