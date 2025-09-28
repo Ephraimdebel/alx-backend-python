@@ -51,6 +51,7 @@ MIDDLEWARE = [
     "chats.middleware.RequestLoggingMiddleware",       # logging middleware
     "chats.middleware.RestrictAccessByTimeMiddleware", # ensure this exact line
     "chats.middleware.OffensiveLanguageMiddleware",
+    "chats.middleware.RolePermissionMiddleware",
 ]
 
 
