@@ -6,6 +6,7 @@ from django.conf import settings
 from datetime import datetime
 from django.http import HttpResponseForbidden
 # Django-Middleware-0x03/chats/middleware.py
+from django.http import HttpResponseForbidden
 import time
 from django.http import JsonResponse
 
@@ -115,3 +116,26 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get("REMOTE_ADDR", "")
         return ip
+
+class RolePermissionMiddleware:
+    """
+    Middleware that restricts access to certain actions based on user role.
+    Only users with role 'admin' or 'moderator' can proceed.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Only enforce for authenticated users
+        if hasattr(request, "user") and request.user.is_authenticated:
+            # Assuming your User model has a 'role' attribute
+            role = getattr(request.user, "role", None)
+            if role not in ["admin", "moderator"]:
+                return HttpResponseForbidden("You do not have permission to access this resource.")
+        else:
+            # Anonymous users are blocked
+            return HttpResponseForbidden("You must be logged in to access this resource.")
+
+        response = self.get_response(request)
+        return response
