@@ -1,24 +1,17 @@
 from rest_framework import permissions
 
-
-class IsParticipantOfConversation(permissions.BasePermission):
+class IsConversationParticipant(permissions.BasePermission):
     """
-    Custom permission to allow only participants of a conversation
-    to send, view, update, and delete messages.
+    Allow access only to participants of the conversation.
     """
 
     def has_object_permission(self, request, view, obj):
-        """
-        Check if the user is authenticated and is part of the conversation.
-        Assumes:
-          - Message model has a `conversation` foreign key
-          - Conversation model has a `participants` ManyToManyField
-        """
-        if not request.user or not request.user.is_authenticated:
-            return False
+        # For Conversations
+        if hasattr(obj, "participants"):
+            return request.user in obj.participants.all()
 
-        conversation = getattr(obj, "conversation", None)
-        if conversation is None:
-            return False
+        # For Messages
+        if hasattr(obj, "conversation"):
+            return request.user in obj.conversation.participants.all()
 
-        return request.user in conversation.participants.all()
+        return False
