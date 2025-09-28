@@ -1,21 +1,26 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
+from .permissions import IsParticipantOfConversation
+
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all().prefetch_related("participants", "messages")
     serializer_class = ConversationSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["participants__first_name", "participants__last_name"]
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
-    # Create a new conversation
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         conversation = serializer.save()
-        return Response(ConversationSerializer(conversation).data, status=status.HTTP_201_CREATED)
+        return Response(
+            ConversationSerializer(conversation).data,
+            status=status.HTTP_201_CREATED
+        )
 
 
 class MessageViewSet(viewsets.ModelViewSet):
@@ -23,10 +28,13 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["message_body"]
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
-    # Send a message to an existing conversation
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        message = serializer.save()
-        return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
+        message = serializer.save(sender=request.user)  # ensure sender is the logged-in user
+        return Response(
+            MessageSerializer(message).data,
+            status=status.HTTP_201_CREATED
+        )
