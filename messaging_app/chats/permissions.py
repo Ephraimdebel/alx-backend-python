@@ -1,11 +1,15 @@
-# messaging_app/chats/permissions.py
-from rest_framework.permissions import BasePermission
+from rest_framework import permissions
 
 
-class IsOwner(BasePermission):
+class IsOwnerOrReadOnly(permissions.BasePermission):
     """
-    Custom permission to allow users to access only their own objects.
+    Custom permission to only allow users to access their own messages
+    and conversations.
     """
 
     def has_object_permission(self, request, view, obj):
-        return obj.user == request.user
+        # For example, if your Message model has a 'sender' field
+        # and Conversation model has a 'user' or 'participants' field
+        return getattr(obj, "sender", None) == request.user or \
+               getattr(obj, "user", None) == request.user or \
+               request.user in getattr(obj, "participants", [])
