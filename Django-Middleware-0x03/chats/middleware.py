@@ -9,7 +9,7 @@ logger = logging.getLogger("chats.request_logger")
 if not logger.handlers:
     # ensure BASE_DIR exists in settings; fallback to cwd
     base = getattr(settings, "BASE_DIR", os.getcwd())
-    log_file = os.path.join(base, "requests.log")
+    log_file = os.path.join(settings.BASE_DIR.parent, "requests.log")
     handler = logging.FileHandler(log_file)
     handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(handler)
