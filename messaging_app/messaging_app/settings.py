@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'chats',
     "rest_framework_simplejwt",
 ]
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -51,6 +52,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
+
 
 
 MIDDLEWARE = [
