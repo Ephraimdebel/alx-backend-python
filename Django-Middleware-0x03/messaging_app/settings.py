@@ -104,4 +104,4 @@ AUTH_USER_MODEL = 'chats.User'
 
 # === Request Logging Settings ===
 # Ensure this matches checker expectation
-LOG_FILE = BASE_DIR / "Django-Middleware-0x03" / "requests.log"
+LOG_FILE = BASE_DIR.parent / "requests.log"
