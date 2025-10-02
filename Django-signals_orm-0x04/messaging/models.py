@@ -1,11 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        """
+        Return unread messages for the given user.
+        Uses .only() to optimize by loading only needed fields.
+        """
+        return self.filter(receiver=user, read=False).only("id", "sender", "content", "timestamp")
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)  # REQUIRED FIELD
+    read = models.BooleanField(default=False)  # ✅ new field
+
+    # Default manager
+    objects = models.Manager()
+    # Custom unread manager
+    unread = UnreadMessagesManager()
     parent_message = models.ForeignKey(
             "self",
             on_delete=models.CASCADE,
