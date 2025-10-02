@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .models import Message
 from .utils import get_thread   # import recursive helper
+from django.views.decorators.cache import cache_page
 
 @login_required
 def delete_user(request):
@@ -44,3 +45,14 @@ def unread_inbox_view(request):
     unread_messages = unread_messages.only("id", "sender", "content", "timestamp")
 
     return render(request, "messaging/unread_inbox.html", {"unread_messages": unread_messages})
+
+@cache_page(60)  # 60 seconds
+def conversation_view(request, user_id):
+    receiver = get_object_or_404(User, id=user_id)
+    # Retrieve messages between the logged-in user and receiver
+    messages = Message.objects.filter(
+        sender=request.user,
+        receiver=receiver
+    ).select_related("sender", "receiver").order_by("timestamp")
+
+    return render(request, "messaging/conversation.html", {"messages": messages})
