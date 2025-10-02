@@ -1,6 +1,8 @@
-from django.db.models.signals import post_save,pre_save
+from django.db.models.signals import post_save,pre_save,post_delete
 from django.dispatch import receiver
 from .models import Message, Notification,MessageHistory
+from django.contrib.auth.models import User
+
 
 @receiver(post_save, sender=Message)
 def create_notification(sender, instance, created, **kwargs):
@@ -23,3 +25,17 @@ def log_message_edit(sender, instance, **kwargs):
                 instance.edited = True  # mark as edited
         except Message.DoesNotExist:
             pass
+
+@receiver(post_delete, sender=User)
+def delete_related_data(sender, instance, **kwargs):
+    """
+    Automatically delete related messages, message histories, and notifications
+    when a user account is deleted.
+    """
+    # Delete all messages by this user
+    messages = Message.objects.filter(user=instance)
+    for message in messages:
+        message.delete()  # cascades to MessageHistory
+
+    # If you have a Notification model:
+    # Notification.objects.filter(user=instance).delete()
