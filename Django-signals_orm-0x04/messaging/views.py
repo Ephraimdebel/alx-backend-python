@@ -25,6 +25,13 @@ def conversation_view(request):
     return render(request, "messaging/conversation.html", {"messages": messages})
 
 def threaded_conversation_view(request, message_id):
-    root_message = get_object_or_404(Message.objects.select_related("user"), id=message_id)
+    # Optimize query with select_related and prefetch_related
+    root_message = get_object_or_404(
+        Message.objects.select_related("sender", "receiver").prefetch_related("replies"),
+        id=message_id,
+        sender=request.user  # ensure current user is the sender
+    )
+
     conversation = get_thread(root_message)
+
     return render(request, "messaging/thread.html", {"conversation": conversation})
