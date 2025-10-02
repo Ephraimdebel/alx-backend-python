@@ -6,9 +6,16 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)  # REQUIRED FIELD
+    parent_message = models.ForeignKey(
+            "self",
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            related_name="replies"
+        )
 
     def __str__(self):
-        return f"From {self.sender} to {self.receiver}: {self.content[:20]}"
+        return f"{self.user.username}: {self.content[:30]}"
 
 
 class Notification(models.Model):
