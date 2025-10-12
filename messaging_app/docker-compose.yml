@@ -1,32 +1,27 @@
-version: '3.9'
+version: "3.9"
 
 services:
   web:
     build: .
     command: python3 manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
-    environment:
-      - MYSQL_USER=messaging_user
-      - MYSQL_DB=messaging_db
-      - MYSQL_PASSWORD=StrongPassword123
     depends_on:
       - db
+    env_file:
+      - .env
 
   db:
     image: mysql:8.0
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD=RootPassword123
-      MYSQL_USER=messaging_user
-      MYSQL_DB=messaging_db
-      MYSQL_PASSWORD=StrongPassword123
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql   
 
 volumes:
-  mysql_data:
+  mysql_data:      
