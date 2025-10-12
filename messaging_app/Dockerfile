@@ -16,7 +16,7 @@ RUN pip install -r requirements.txt
 # Copy project files into the container
 COPY . /app/
 
-# Expose port 8000
+# Expose port 8000 for Django
 EXPOSE 8000
 
 # Default command to run the Django server
