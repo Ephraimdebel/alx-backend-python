@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "🚀 Starting rolling update for messaging-app-blue..."
+
+# Apply the updated deployment
+kubectl apply -f blue_deployment.yaml
+
+# Monitor rollout progress
+echo "🔄 Monitoring rollout status..."
+kubectl rollout status deployment/messaging-app-blue
+
+# Test for downtime
+echo "⚡ Testing application availability during rollout..."
+for i in {1..15}; do
+  curl -s http://localhost:8000/ > /dev/null && \
+  echo "✅ App responding (request #$i)" || \
+  echo "❌ App not responding (request #$i)"
+  sleep 2
+done
+
+# Check the new pods after rollout
+echo "📦 Current running pods:"
+kubectl get pods -l app=messaging-app,version=blue -o wide
+
+echo "✅ Rolling update complete!"
