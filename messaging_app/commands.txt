@@ -1,0 +1,8 @@
+# Step 1: Install the Nginx Ingress Controller
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+
+# Step 2: Apply the Ingress configuration file
+kubectl apply -f ingress.yaml
+
+# Step 3: Verify the Ingress resource
+kubectl get ingress
