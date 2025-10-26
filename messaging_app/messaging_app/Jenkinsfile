@@ -1,58 +1,41 @@
 pipeline {
     agent any
 
-    environment {
-        // Optional: define Python version and report path
-        VENV_DIR = 'venv'
-        REPORT_DIR = 'reports'
-    }
-
     stages {
-
-        stage('Checkout') {
+        stage('Checkout Source') {
             steps {
-                echo 'Cloning repository from GitHub...'
-                checkout scm
+                // ✅ Pulls code from GitHub using credentials
+                git branch: 'main', 
+                    url: 'https://github.com/Ephraimdebel/alx-backend-python.git',
+                    credentialsId: 'github-credentials'
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Setting up virtual environment and installing dependencies...'
-                sh '''
-                    python3 -m venv ${VENV_DIR}
-                    . ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt || true
-                    pip install pytest pytest-html
-                '''
+                // ✅ Installs dependencies from requirements.txt
+                sh 'pip3 install -r messaging_app/requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                echo 'Running pytest tests...'
-                sh '''
-                    . ${VENV_DIR}/bin/activate
-                    mkdir -p ${REPORT_DIR}
-                    pytest --maxfail=1 --disable-warnings -q --html=${REPORT_DIR}/report.html --self-contained-html
-                '''
+                // ✅ Runs pytest
+                sh 'pytest --maxfail=1 --disable-warnings -q --junitxml=report.xml'
             }
-            post {
-                always {
-                    echo 'Archiving test report...'
-                    archiveArtifacts artifacts: "${REPORT_DIR}/report.html", allowEmptyArchive: true
-                }
+        }
+
+        stage('Generate Report') {
+            steps {
+                // ✅ Archive and publish test results
+                junit 'report.xml'
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Pipeline completed successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed! Check logs for details.'
+        always {
+            echo 'Pipeline finished! Cleaning up...'
         }
     }
 }
