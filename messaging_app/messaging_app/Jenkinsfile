@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        // Optional: define Python version and report path
+        VENV_DIR = 'venv'
+        REPORT_DIR = 'reports'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Cloning repository from GitHub...'
+                checkout scm
+            }
+        }
+
+        stage('Setup Python Environment') {
+            steps {
+                echo 'Setting up virtual environment and installing dependencies...'
+                sh '''
+                    python3 -m venv ${VENV_DIR}
+                    . ${VENV_DIR}/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt || true
+                    pip install pytest pytest-html
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo 'Running pytest tests...'
+                sh '''
+                    . ${VENV_DIR}/bin/activate
+                    mkdir -p ${REPORT_DIR}
+                    pytest --maxfail=1 --disable-warnings -q --html=${REPORT_DIR}/report.html --self-contained-html
+                '''
+            }
+            post {
+                always {
+                    echo 'Archiving test report...'
+                    archiveArtifacts artifacts: "${REPORT_DIR}/report.html", allowEmptyArchive: true
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check logs for details.'
+        }
+    }
+}
